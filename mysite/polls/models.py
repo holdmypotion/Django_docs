@@ -18,8 +18,13 @@ class Question(models.Model):
 
 class Choice(models.Model):
     """Database for storing choices to questions"""
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choices = models.CharField(max_length=200)
+    question = models.ForeignKey(
+        Question,
+        on_delete=models.CASCADE,
+        related_name="choices",
+        related_query_name="choices"
+    )
+    choice_text = models.CharField(max_length=200)
     votes = models.IntegerField(default=0)
 
     def __str__(self):
