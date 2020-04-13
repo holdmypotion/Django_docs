@@ -1,22 +1,28 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, Http404
 from django.urls import reverse
+from django.views import generic
 
 from .models import Choice, Question
 
 
-def index(request):
-    """Home page to Display all the questions"""
-    questions_list = Question.objects.all().order_by('-pub_date')
-    context = {'questions_list': questions_list}
+class IndexView(generic.ListView):
+    template_name = 'polls/home.html'
+    context_object_name = 'question_list'
 
-    return render(request, 'polls/home.html', context)
+    def get_queryset(self):
+        """Returns the last five published questions."""
+        return Question.objects.order_by('-pub_date')[:5]
 
 
-def detail(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'polls/detail.html'
 
-    return render(request, 'polls/detail.html', {'question': question})
+
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/results.html'
 
 
 def vote(request, question_id):
@@ -36,9 +42,3 @@ def vote(request, question_id):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return redirect(reverse('polls:results', args=(question.id,)))
-
-def results(request, question_id):
-    """Returns the results."""
-    question = get_object_or_404(Question, pk=question_id)
-    
-    return render(request, 'polls/results.html', {'question': question})
